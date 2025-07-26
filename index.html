@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Bezahlen – Almanara S1 DE</title>
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_LIVE_CLIENT_ID&currency=EUR"></script>
+</head>
+<body>
+  <h2>Analyse deines Lebenslaufs – Almanara KI Coach</h2>
+  <p>Preis: 10 € (inkl. professioneller KI-Auswertung & Empfehlungen)</p>
+
+  <div id="paypal-button-container"></div>
+
+  <script>
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: '10.00'
+            },
+            custom_id: 'S1-DE-' + Date.now()
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        alert('Vielen Dank für deine Zahlung! Deine Transaktions-ID: ' + data.orderID);
+      }
+    }).render('#paypal-button-container');
+  </script>
+</body>
+</html>
