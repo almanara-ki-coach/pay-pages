@@ -28,5 +28,33 @@
       }
     }).render('#paypal-button-container');
   </script>
+
+  <!-- PayPal Smart Payment Buttons -->
+  <div id="paypal-button-container"></div>
+
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=EUR"></script>
+
+  <script>
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: '10.00'
+            },
+            description: "Lebenslaufanalyse – Almanara KI Coach"
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          alert('Danke, ' + details.payer.name.given_name + '! Die Zahlung war erfolgreich.');
+          // لاحقًا: أضف هنا كود Webhook أو إعادة توجيه
+        });
+      }
+    }).render('#paypal-button-container');
+  </script>
+
+
 </body>
 </html>
