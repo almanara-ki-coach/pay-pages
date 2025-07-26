@@ -1,60 +1,56 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Bezahlen – Almanara S1 DE</title>
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_LIVE_CLIENT_ID&currency=EUR"></script>
+    <meta charset="UTF-8">
+    <title>Bezahlung – Almanara KI Coach</title>
 </head>
 <body>
-  <h2>Analyse deines Lebenslaufs – Almanara KI Coach</h2>
-  <p>Preis: 10 € (inkl. professioneller KI-Auswertung & Empfehlungen)</p>
+    <h1>Analyse deines Lebenslaufs – Almanara KI Coach</h1>
+    <p>Preis: 10 € (inkl. professioneller KI-Auswertung & Empfehlungen)</p>
+    <p><strong>Bestellnummer:</strong> <span id="bestellnummer-display"></span></p>
 
-  <div id="paypal-button-container"></div>
+    <!-- PayPal Button -->
+    <div id="paypal-button-container"></div>
 
-  <script>
-    paypal.Buttons({
-      createOrder: function(data, actions) {
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: '10.00'
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=EUR"></script>
+
+    <script>
+        // استخراج رقم الطلب من الرابط
+        const urlParams = new URLSearchParams(window.location.search);
+        const bestellnummer = urlParams.get('id');
+        document.getElementById('bestellnummer-display').textContent = bestellnummer || "Unbekannt";
+
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '10.00'
+                        },
+                        description: "Lebenslaufanalyse – Almanara KI Coach"
+                    }]
+                });
             },
-            custom_id: 'S1-DE-' + Date.now()
-          }]
-        });
-      },
-      onApprove: function(data, actions) {
-        alert('Vielen Dank für deine Zahlung! Deine Transaktions-ID: ' + data.orderID);
-      }
-    }).render('#paypal-button-container');
-  </script>
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // إرسال البيانات إلى Zapier Webhook
+                    fetch('https://hooks.zapier.com/hooks/catch/XXXXXXX/YYYYYYY', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            paypal_order_id: data.orderID,
+                            bestellnummer: bestellnummer,
+                            payer_name: details.payer.name.given_name,
+                            payer_email: details.payer.email_address
+                        })
+                    });
 
-  <!-- PayPal Smart Payment Buttons -->
-  <div id="paypal-button-container"></div>
-
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=EUR"></script>
-
-  <script>
-    paypal.Buttons({
-      createOrder: function(data, actions) {
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: '10.00'
-            },
-            description: "Lebenslaufanalyse – Almanara KI Coach"
-          }]
-        });
-      },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          alert('Danke, ' + details.payer.name.given_name + '! Die Zahlung war erfolgreich.');
-          // لاحقًا: أضف هنا كود Webhook أو إعادة توجيه
-        });
-      }
-    }).render('#paypal-button-container');
-  </script>
-
-
+                    alert('Vielen Dank, ' + details.payer.name.given_name + '! Zahlung erfolgreich.');
+                });
+            }
+        }).render('#paypal-button-container');
+    </script>
 </body>
 </html>
